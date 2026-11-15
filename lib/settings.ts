@@ -42,7 +42,6 @@ export const settings = {
     { key: "patio", label: "Patio" },
     { key: "playground", label: "Playground" },
     { key: "play-area", label: "Play area" },
-    { key: "fenced-yard", label: "Fenced yard" },
   ],
 } as const satisfies {
   appName: string;
