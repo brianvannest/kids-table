@@ -7,13 +7,14 @@ import { settings, labelFor } from "@/lib/settings";
 import { requireApprovedMember } from "@/lib/session";
 import { getRestaurant } from "@/lib/restaurants";
 import { Card } from "@/components/ui/Card";
+import { VisitsSection } from "./VisitsSection";
 import { TagPill } from "@/components/ui/TagPill";
 
 export const metadata: Metadata = { title: `A ${settings.item.singular}`, robots: { index: false, follow: false } };
 
 async function PlaceDetails({ params }: { params: Promise<{ id: string }> }) {
   await connection();
-  await requireApprovedMember();
+  const member = await requireApprovedMember();
   const { id } = await params;
   const place = await getRestaurant(id);
   if (!place) notFound();
@@ -38,6 +39,7 @@ async function PlaceDetails({ params }: { params: Promise<{ id: string }> }) {
         <p>{place.public ? "Anyone can see this place on the public page." : "Only approved members can see this place."}</p>
         {place.lastChecked && <p className="text-sm text-muted">Last checked {place.lastChecked}.</p>}
       </Card>
+      <VisitsSection userId={member.id} restaurantId={place.id} />
       <p>
         <Link href="/places">Back to all {settings.item.plural}</Link>
       </p>

@@ -23,7 +23,12 @@ export async function AccountMenu() {
 
   return (
     <nav aria-label="Your account" className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
-      {isApproved(user) && <Link href="/places">Places</Link>}
+      {isApproved(user) && (
+        <>
+          <Link href="/places">Places</Link>
+          <Link href="/visits">My visits</Link>
+        </>
+      )}
       {isOwner(user) && (
         <>
           <Link href="/members">Members</Link>
