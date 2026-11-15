@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
-import { isDatabaseConfigured } from "@/lib/mongodb";
+import { isAuthConfigured } from "@/lib/authConfig";
 import { getCurrentUser } from "@/lib/session";
 import { Notice } from "@/components/ui/Notice";
 import { SignUpForm } from "./SignUpForm";
@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Create an account", robots: { index:
 
 async function SignUpContent() {
   await connection();
-  if (!isDatabaseConfigured()) {
+  if (!isAuthConfigured()) {
     return (
       <Notice kind="error">
         <p className="font-bold">Sign-up isn&apos;t available right now.</p>

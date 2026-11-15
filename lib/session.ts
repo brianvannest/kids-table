@@ -2,7 +2,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getAuth } from "@/lib/auth";
-import { isDatabaseConfigured } from "@/lib/mongodb";
+import { isAuthConfigured } from "@/lib/authConfig";
 import { isApproved, isOwner, readRole, readStatus, type Person } from "@/lib/memberRules";
 
 // Every page and every action that needs to know who's signed in asks here. The answer comes from
@@ -14,7 +14,7 @@ import { isApproved, isOwner, readRole, readStatus, type Person } from "@/lib/me
 
 /** The person who's signed in right now, or null. Never throws. */
 export async function getCurrentUser(): Promise<Person | null> {
-  if (!isDatabaseConfigured()) return null;
+  if (!isAuthConfigured()) return null;
   try {
     const session = await getAuth().api.getSession({ headers: await headers() });
     const user = session?.user as (Record<string, unknown> & { id: string; name: string; email: string }) | undefined;

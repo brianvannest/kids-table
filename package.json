@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --no-warnings --test"
+    "test": "node --no-warnings --test",
+    "check:settings": "node --no-warnings --env-file=.env.local scripts/check-settings.mjs",
+    "check:live": "node --no-warnings scripts/check-live.mjs"
   },
   "dependencies": {
     "better-auth": "^1.7.25",
