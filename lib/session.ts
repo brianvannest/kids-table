@@ -52,3 +52,9 @@ export async function ownerForAction(): Promise<Person | null> {
   const user = await getCurrentUser();
   return isOwner(user) ? user : null;
 }
+
+/** For an action any approved member may use. Returns the member (the owner counts), or null. */
+export async function memberForAction(): Promise<Person | null> {
+  const user = await getCurrentUser();
+  return user && isApproved(user) ? user : null;
+}

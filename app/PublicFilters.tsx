@@ -13,14 +13,14 @@ type Options = { areas: string[]; foodTypes: string[]; features: string[] };
 // the only way, and it's the one tomato button on the screen.
 //
 // Only choices that lead somewhere are offered: the areas, food types, and features of the places
-// that are public.
-export function PublicFilters({ filters, options }: { filters: Filters; options: Options }) {
+// the page can show. `action` is the page the form sends its choices to.
+export function PublicFilters({ filters, options, action = "/" }: { filters: Filters; options: Options; action?: string }) {
   const areas = settings.areas.filter((a) => options.areas.includes(a.key));
   const foodTypes = settings.foodTypes.filter((f) => options.foodTypes.includes(f.key));
   const features = settings.features.filter((f) => options.features.includes(f.key));
 
   return (
-    <Form action="/" role="search" aria-label={`Find a ${settings.item.singular}`} className="grid max-w-2xl gap-4">
+    <Form action={action} role="search" aria-label={`Find a ${settings.item.singular}`} className="grid max-w-2xl gap-4">
       <TextField
         label="Search by name"
         name="q"

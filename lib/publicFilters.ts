@@ -79,6 +79,17 @@ export function buildPublicFilter(filters: PublicFilters): Record<string, unknow
   return filter;
 }
 
+/**
+ * For signed-in members: the same search, but private places count too. It starts from the public
+ * filter and takes the one condition away, so a search means exactly the same thing in both places.
+ * Only call this for someone who has been checked as an approved member.
+ */
+export function buildMemberFilter(filters: PublicFilters): Record<string, unknown> {
+  const filter = buildPublicFilter(filters);
+  delete filter.public;
+  return filter;
+}
+
 export function hasFilters(filters: PublicFilters): boolean {
   return Boolean(filters.q || filters.area || filters.foodType || filters.features.length);
 }

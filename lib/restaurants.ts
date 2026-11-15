@@ -1,5 +1,5 @@
 import "server-only";
-import type { Collection, Filter } from "mongodb";
+import { ObjectId, type Collection, type Filter } from "mongodb";
 import { getDb } from "@/lib/mongodb";
 import type { RestaurantDraft } from "@/lib/importRows";
 import { publicProjection } from "@/lib/publicFilters";
@@ -61,6 +61,67 @@ export async function listRestaurants(): Promise<RestaurantView[]> {
     public: d.public,
     lastChecked: d.lastChecked ? d.lastChecked.toISOString().slice(0, 10) : null,
   }));
+}
+
+const MAX_MEMBER_RESULTS = 100;
+
+const toView = (d: RestaurantDoc & { _id: ObjectId }): RestaurantView => ({
+  id: d._id.toString(),
+  name: d.name,
+  area: d.area,
+  foodType: d.foodType,
+  features: d.features,
+  public: d.public,
+  lastChecked: d.lastChecked ? d.lastChecked.toISOString().slice(0, 10) : null,
+});
+
+/**
+ * Places for signed-in members, private ones included. Only call this for someone who has been
+ * checked as an approved member. The filter comes from `buildMemberFilter`.
+ */
+export async function listMemberRestaurants(filter: Record<string, unknown>): Promise<RestaurantView[]> {
+  const collection = await restaurantsCollection();
+  const docs = await collection.find(filter as Filter<RestaurantDoc>).sort({ nameKey: 1 }).limit(MAX_MEMBER_RESULTS).toArray();
+  return docs.map(toView);
+}
+
+/** One place by its id, or null. An id that isn't a real id finds nothing instead of failing. */
+export async function getRestaurant(id: string): Promise<RestaurantView | null> {
+  if (!ObjectId.isValid(id) || String(new ObjectId(id)) !== id) return null;
+  const collection = await restaurantsCollection();
+  const doc = await collection.findOne({ _id: new ObjectId(id) });
+  return doc ? toView(doc) : null;
+}
+
+export type NewRestaurant = { name: string; nameKey: string; area: string; foodType: string; features: string[]; createdBy: string };
+
+/**
+ * Saves one place added by a member. It starts out members-only: deciding what's public is the
+ * owner's job. If the same name in the same area exists, the database refuses it and this says so.
+ */
+export async function insertRestaurant(
+  place: NewRestaurant,
+): Promise<{ kind: "added"; id: string } | { kind: "exists"; id: string | null }> {
+  const collection = await restaurantsCollection();
+  try {
+    const result = await collection.insertOne({
+      name: place.name,
+      nameKey: place.nameKey,
+      area: place.area,
+      foodType: place.foodType,
+      features: place.features,
+      public: false,
+      lastChecked: null,
+      photos: [],
+      createdAt: new Date(),
+      createdBy: place.createdBy,
+    });
+    return { kind: "added", id: result.insertedId.toString() };
+  } catch (error) {
+    if ((error as { code?: number }).code !== 11000) throw error;
+    const existing = await collection.findOne({ nameKey: place.nameKey, area: place.area }, { projection: { _id: 1 } });
+    return { kind: "exists", id: existing ? existing._id.toString() : null };
+  }
 }
 
 const keyOf = (d: Pick<RestaurantDraft, "nameKey" | "area">) => `${d.nameKey}|${d.area ?? ""}`;
