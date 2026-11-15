@@ -4,7 +4,7 @@ Read `plan/00-app-plan.md`, `plan/08-data-model.md`, `plan/11-public-page.md`, `
 
 ## Goal
 
-Approved members can list and search every restaurant, open one, and add a new one by searching first. Strangers and people who are still waiting can do none of it. Photos come in the next phase.
+Approved members can list and search every restaurant, open one, and add a new one by searching first. Strangers and people who are still waiting can do none of it. Photos are not part of this phase.
 
 ## What to build
 
