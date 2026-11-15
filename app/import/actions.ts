@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { settings } from "@/lib/settings";
 import { checkRows, countByStatus, type RowReport, type RowStatus } from "@/lib/importRows";
 import { findExisting, insertDrafts, restaurantKey } from "@/lib/restaurants";
+import { ownerForAction } from "@/lib/session";
 
 const MAX_CHARS = 200_000;
 const MAX_ROWS = 500;
@@ -16,17 +17,14 @@ export type Preview =
 export type ImportResult = { ok: false; message: string } | { ok: true; inserted: number };
 
 // A server action can be called by anyone who sends the right request, not just by the page that
-// shows the button. So the check happens here, inside the action. Until sign-in exists, the only
-// safe rule is: it doesn't run on the live site. Chapter 12 replaces this with "only the owner".
-function notAllowed(): string | null {
-  if (process.env.NODE_ENV === "production") {
-    return "Import is turned off on the live site until sign-in is added (Chapter 12).";
-  }
+// shows the button. So the check happens here, inside the action: only the owner may import.
+async function notAllowed(): Promise<string | null> {
+  if (!(await ownerForAction())) return "Only the owner can import. Sign in as the owner and try again.";
   return null;
 }
 
 async function checkText(csvText: unknown): Promise<{ ok: true; reports: RowReport[] } | { ok: false; message: string }> {
-  const blocked = notAllowed();
+  const blocked = await notAllowed();
   if (blocked) return { ok: false, message: blocked };
 
   // Never trust what the browser sent. Check its type and its size before doing anything with it.

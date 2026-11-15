@@ -99,9 +99,9 @@ for (const [pattern, what] of RULES) {
   });
 }
 
-test("only chips and tags are fully round", () => {
+test("only chips, tags, and avatars are fully round", () => {
   const hits = sourceFiles
-    .filter((f) => !/(Chip|TagPill)\.tsx$/.test(f))
+    .filter((f) => !/(Chip|TagPill|Avatar)\.tsx$/.test(f))
     .filter((f) => /rounded-full/.test(stripComments(readFileSync(f, "utf8"))))
     .map((f) => relative(root, f));
   assert.deepEqual(hits, []);

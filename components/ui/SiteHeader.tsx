@@ -1,16 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { settings } from "@/lib/settings";
+import { AccountMenu } from "./AccountMenu";
 
 // The top of every screen. The logo is Brian's file and is used exactly as it is. It already
 // says "A small fry guide", so the tagline isn't repeated as text.
 //
 // The one glow lives here, behind the logo. It's clipped so it can't make the page scroll sideways.
-// A "Sign in" link and the signed-in person's avatar will go at the right in Chapter 12.
+// At the right is the account menu: Sign in for a visitor, or the signed-in person's name and links.
 export function SiteHeader() {
   return (
     <header className="overflow-x-clip">
-      <div className="mx-auto flex w-full max-w-[1040px] items-center justify-between px-4 pt-4 sm:px-6">
+      <div className="mx-auto flex w-full max-w-[1040px] items-center justify-between gap-4 px-4 pt-4 sm:px-6">
         <Link href="/" className="relative isolate inline-block" aria-label={`${settings.appName}, home`}>
           <span
             aria-hidden="true"
@@ -24,6 +26,10 @@ export function SiteHeader() {
             preload
           />
         </Link>
+        {/* The account menu depends on who's asking, so it's built when the page is requested. */}
+        <Suspense fallback={<div className="h-11 w-24" aria-hidden="true" />}>
+          <AccountMenu />
+        </Suspense>
       </div>
     </header>
   );

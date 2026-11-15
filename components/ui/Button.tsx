@@ -12,6 +12,11 @@ const variants = {
   secondary: "border-[1.5px] border-teal bg-card text-teal hover:bg-teal-soft hover:text-teal-dark",
 } as const;
 
+/** The classes of a button, for a link that should look like one (a link goes somewhere, so it isn't a <button>). */
+export function buttonClass(variant: keyof typeof variants = "secondary"): string {
+  return `${base} ${variants[variant]} no-underline`;
+}
+
 export function Button({ variant = "primary", className = "", type = "button", ...rest }: Props) {
   return <button type={type} className={`${base} ${variants[variant]} ${className}`} {...rest} />;
 }

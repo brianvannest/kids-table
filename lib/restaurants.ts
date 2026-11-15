@@ -19,7 +19,7 @@ export type RestaurantDoc = {
   /** Filled in by Chapter 13. */
   photos: string[];
   createdAt: Date;
-  /** Who added it. Null for imports, until sign-in exists (Chapter 12). */
+  /** Who added it. Null for imports so far. */
   createdBy: string | null;
 };
 

@@ -10,6 +10,7 @@
     "test": "node --no-warnings --test"
   },
   "dependencies": {
+    "better-auth": "^1.7.25",
     "mongodb": "^7.9.0",
     "next": "16.4.6",
     "papaparse": "^5.7.1",
