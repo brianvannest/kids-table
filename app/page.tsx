@@ -1,10 +1,23 @@
+import { Suspense } from "react";
 import { settings } from "@/lib/settings";
+import { SkeletonCards } from "@/components/ui/Skeleton";
+import { PublicList } from "./PublicList";
 
-export default function Home() {
+// The public page. Anyone can open it. It shows only the places the owner marked public, and only
+// their name, area, food, and features: no photos, no reviews, no ratings.
+//
+// The heading is built ahead of time. The search form and the list depend on the web address and
+// the database, so they're built when someone asks, inside <Suspense>.
+export default function Home({ searchParams }: PageProps<"/">) {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-6 text-center">
-      <h1 className="text-4xl font-semibold tracking-tight">{settings.appName}</h1>
-      <p className="text-lg text-zinc-600">{settings.tagline}</p>
-    </main>
+    <div className="grid gap-6">
+      <header className="grid gap-2">
+        <h1 className="text-3xl font-extrabold leading-9 sm:text-4xl sm:leading-10">{settings.home.heading}</h1>
+        <p className="max-w-prose text-muted">{settings.home.intro}</p>
+      </header>
+      <Suspense fallback={<SkeletonCards count={4} label={`Loading ${settings.item.plural}`} />}>
+        <PublicList searchParams={searchParams} />
+      </Suspense>
+    </div>
   );
 }

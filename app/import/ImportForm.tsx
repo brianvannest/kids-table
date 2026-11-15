@@ -3,15 +3,19 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { previewImport, runImport, type Preview } from "./actions";
+import { Button } from "@/components/ui/Button";
+import { Notice } from "@/components/ui/Notice";
+import { TagPill } from "@/components/ui/TagPill";
+import { AlertIcon, CheckIcon } from "@/components/ui/icons";
+import { table } from "@/components/ui/table";
 
 // Step 1: choose a file. The server checks it and shows what would happen. Nothing is saved.
 // Step 2: confirm. The server checks the same text again and saves the rows that are allowed in.
 
-const STATUS_LABEL = { ready: "Ready", warning: "Warning", skipped: "Skipped" } as const;
-const STATUS_STYLE = {
-  ready: "bg-green-100 text-green-900",
-  warning: "bg-amber-100 text-amber-900",
-  skipped: "bg-zinc-200 text-zinc-800",
+const STATUS = {
+  ready: { label: "Ready", tone: "mint", icon: <CheckIcon size={14} /> },
+  warning: { label: "Warning", tone: "sun", icon: <AlertIcon size={14} /> },
+  skipped: { label: "Skipped", tone: "plain", icon: null },
 } as const;
 
 export function ImportForm({ item }: { item: { singular: string; plural: string } }) {
@@ -54,65 +58,77 @@ export function ImportForm({ item }: { item: { singular: string; plural: string 
   const toImport = counts ? counts.ready + (includeWarnings ? counts.warning : 0) : 0;
 
   return (
-    <div className="flex flex-col gap-5">
-      <label className="flex flex-col gap-2">
-        <span className="font-medium">Choose a CSV file</span>
+    <div className="grid gap-5">
+      <div>
+        <label htmlFor="csv-file" className="mb-1 block text-sm font-bold">
+          Choose a CSV file
+        </label>
         <input
+          id="csv-file"
           ref={input}
           type="file"
           accept=".csv,text/csv"
           onChange={(e) => onFile(e.target.files?.[0])}
-          className="block w-full max-w-md text-sm file:mr-3 file:rounded-full file:border file:border-zinc-300 file:bg-white file:px-4 file:py-2 file:font-medium"
+          className="block w-full max-w-md text-base file:mr-3 file:min-h-11 file:cursor-pointer file:rounded-control file:border-[1.5px] file:border-teal file:bg-card file:px-4 file:font-extrabold file:text-teal"
         />
-      </label>
+      </div>
 
       {pending && <p role="status">Checking {fileName || "the file"}...</p>}
-      {done && <p role="status" className="rounded-lg bg-green-100 px-4 py-3 text-green-900">{done}</p>}
+      {done && (
+        <Notice kind="success">
+          <p>{done}</p>
+        </Notice>
+      )}
       {preview && !preview.ok && (
-        <p role="alert" className="rounded-lg bg-red-100 px-4 py-3 text-red-900">{preview.message}</p>
+        <Notice kind="error">
+          <p>{preview.message}</p>
+        </Notice>
       )}
 
       {preview?.ok && counts && (
-        <section aria-label="What would happen" className="flex flex-col gap-4">
+        <section aria-label="What would happen" className="grid gap-4">
           <p className="text-lg">
             <strong>{fileName}</strong>: {counts.ready} ready, {counts.warning} with warnings, {counts.skipped} skipped.
           </p>
-          <div className="overflow-x-auto rounded-xl border border-zinc-200">
-            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-              <thead className="bg-zinc-100 text-xs uppercase tracking-wide text-zinc-600">
+          <div className={table.wrap} tabIndex={0} role="region" aria-label="What would happen to each row. Scrolls sideways on a small screen.">
+            <table className={table.table}>
+              <thead>
                 <tr>
-                  <th className="px-3 py-2">Line</th>
-                  <th className="px-3 py-2">Name</th>
-                  <th className="px-3 py-2">What will happen</th>
-                  <th className="px-3 py-2">Notes</th>
+                  <th scope="col" className={table.th}>Line</th>
+                  <th scope="col" className={table.th}>Name</th>
+                  <th scope="col" className={table.th}>What will happen</th>
+                  <th scope="col" className={table.th}>Notes</th>
                 </tr>
               </thead>
               <tbody>
-                {preview.reports.map((r) => (
-                  <tr key={r.line} className="border-t border-zinc-200 align-top">
-                    <td className="px-3 py-2 tabular-nums">{r.line}</td>
-                    <td className="px-3 py-2 font-medium">{r.name || <span className="text-zinc-500">(no name)</span>}</td>
-                    <td className="px-3 py-2">
-                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLE[r.status]}`}>
-                        {STATUS_LABEL[r.status]}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-zinc-700">
-                      {r.notes.length ? r.notes.map((n) => <p key={n}>{n}</p>) : <span className="text-zinc-500">Looks good.</span>}
-                    </td>
-                  </tr>
-                ))}
+                {preview.reports.map((r) => {
+                  const s = STATUS[r.status];
+                  return (
+                    <tr key={r.line}>
+                      <td className={`${table.td} tabular-nums`}>{r.line}</td>
+                      <td className={`${table.td} font-bold`}>{r.name || <span className="font-medium text-muted">(no name)</span>}</td>
+                      <td className={table.td}>
+                        <TagPill tone={s.tone} icon={s.icon}>
+                          {s.label}
+                        </TagPill>
+                      </td>
+                      <td className={table.td}>
+                        {r.notes.length ? r.notes.map((n) => <p key={n}>{n}</p>) : <span className="text-muted">Looks good.</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
 
           {counts.warning > 0 && (
-            <label className="flex items-start gap-3">
+            <label className="flex min-h-11 items-start gap-3">
               <input
                 type="checkbox"
                 checked={includeWarnings}
                 onChange={(e) => setIncludeWarnings(e.target.checked)}
-                className="mt-1 h-5 w-5"
+                className="mt-0.5 h-6 w-6 shrink-0 accent-teal"
               />
               <span>
                 Also import the {counts.warning} {counts.warning === 1 ? "row" : "rows"} with warnings. Any cell I couldn&apos;t
@@ -122,14 +138,9 @@ export function ImportForm({ item }: { item: { singular: string; plural: string 
           )}
 
           <div>
-            <button
-              type="button"
-              onClick={onImport}
-              disabled={pending || toImport === 0}
-              className="rounded-full bg-red-600 px-6 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:bg-zinc-300"
-            >
+            <Button onClick={onImport} disabled={pending || toImport === 0}>
               Import {toImport} {toImport === 1 ? item.singular : item.plural}
-            </button>
+            </Button>
           </div>
         </section>
       )}

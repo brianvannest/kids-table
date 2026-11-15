@@ -9,6 +9,12 @@ export const settings = {
   appName: "The Kids' Table",
   tagline: "A small fry guide",
 
+  // The words at the top of the public page.
+  home: {
+    heading: "Places to eat with kids",
+    intro: "A short list of family-friendly spots our group likes. Search by name, or narrow it down.",
+  },
+
   // What the app calls the things it keeps.
   item: { singular: "restaurant", plural: "restaurants" },
   visit: { singular: "visit", plural: "visits" },
@@ -40,6 +46,7 @@ export const settings = {
 } as const satisfies {
   appName: string;
   tagline: string;
+  home: { heading: string; intro: string };
   item: { singular: string; plural: string };
   visit: { singular: string; plural: string };
   areas: readonly Choice[];

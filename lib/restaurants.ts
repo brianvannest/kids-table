@@ -1,7 +1,8 @@
 import "server-only";
-import type { Collection } from "mongodb";
+import type { Collection, Filter } from "mongodb";
 import { getDb } from "@/lib/mongodb";
 import type { RestaurantDraft } from "@/lib/importRows";
+import { publicProjection } from "@/lib/publicFilters";
 
 // Everything the app does with the restaurants collection lives here, so the rules (one document
 // per place, how a place is stored) are in one spot. Server-only, like the connection itself.
@@ -103,4 +104,55 @@ export async function insertDrafts(drafts: readonly RestaurantDraft[]): Promise<
     if (e.code === 11000) return { inserted: e.result?.insertedCount ?? e.insertedCount ?? 0 };
     throw error;
   }
+}
+
+// ---- What a stranger sees --------------------------------------------------------------------
+
+/** A restaurant as the public page sees it. There is no id, no `public`, no date, no photos. */
+export type PublicRestaurantView = {
+  /** A stable key for a list. It's the name key and the area, never a database id. */
+  key: string;
+  name: string;
+  area: string | null;
+  foodType: string | null;
+  features: string[];
+};
+
+type PublicDoc = Pick<RestaurantDoc, "name" | "nameKey" | "area" | "foodType" | "features">;
+
+const MAX_PUBLIC_RESULTS = 60;
+
+/** Public restaurants matching a filter built by `buildPublicFilter`. */
+export async function listPublicRestaurants(filter: Record<string, unknown>): Promise<PublicRestaurantView[]> {
+  const collection = await restaurantsCollection();
+  const docs = await collection
+    .find(filter as Filter<RestaurantDoc>)
+    .project<PublicDoc>(publicProjection())
+    .sort({ nameKey: 1 })
+    .limit(MAX_PUBLIC_RESULTS)
+    .toArray();
+  return docs.map((d) => ({
+    key: `${d.nameKey}|${d.area ?? ""}`,
+    name: d.name,
+    area: d.area,
+    foodType: d.foodType,
+    features: d.features,
+  }));
+}
+
+/**
+ * What the public places have between them, so the filters only offer choices that lead somewhere.
+ * It looks only at public places, so a private place can never show up as a choice.
+ */
+export async function getPublicOverview(): Promise<{ total: number; areas: string[]; foodTypes: string[]; features: string[] }> {
+  const collection = await restaurantsCollection();
+  const onlyPublic = { public: true };
+  const [total, areas, foodTypes, features] = await Promise.all([
+    collection.countDocuments(onlyPublic),
+    collection.distinct("area", onlyPublic),
+    collection.distinct("foodType", onlyPublic),
+    collection.distinct("features", onlyPublic),
+  ]);
+  const text = (values: unknown[]) => values.filter((v): v is string => typeof v === "string");
+  return { total, areas: text(areas), foodTypes: text(foodTypes), features: text(features) };
 }

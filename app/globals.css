@@ -1,26 +1,77 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+  The app's design system lives here, and only here. Every color, radius, and shadow the app uses is
+  a token below. `--color-*: initial` removes Tailwind's default palette, so a stray class like
+  `bg-zinc-200` or `text-red-600` draws nothing, and a test fails. See docs/build-guide/KIDS_TABLE_APP_DESIGN.md.
+*/
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-*: initial;
+
+  /* The design sheet's colors */
+  --color-tomato: #c8102e;
+  --color-teal: #0f5257;
+  --color-cream: #fff8ec;
+  --color-card: #ffffff;
+  --color-line: #f0e3d2;
+  --color-ink: #2a2220;
+  --color-muted: #7a6b63;
+  --color-tomato-soft: #fbe3e1;
+  --color-teal-soft: #dcedeb;
+  --color-white: #ffffff;
+
+  /* Additions to the sheet (the design doc says why) */
+  --color-edge: #8f8174;
+  --color-tomato-dark: #a80d26;
+  --color-teal-dark: #0b3f43;
+  --color-sun-soft: #fff1c9;
+  --color-sand: #f4ece0;
+
+  --font-sans: var(--font-hanken), "Segoe UI", system-ui, sans-serif;
+
+  --radius-control: 14px;
+  --radius-card: 16px;
+
+  --shadow-card: 0 2px 6px rgba(42, 34, 32, 0.05);
+  --shadow-primary: 0 8px 18px -8px rgba(200, 16, 46, 0.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  color-scheme: light;
+}
+
+html {
+  background: var(--color-cream);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* One focus style for everything. An outline, not a shadow, so it survives high-contrast mode. */
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--color-teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a:hover {
+  color: var(--color-teal-dark);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a,
+  button,
+  .tt-transition {
+    transition: background-color 120ms, color 120ms, border-color 120ms;
+  }
 }
