@@ -14,7 +14,9 @@
 const args = process.argv.slice(2);
 const base = (args.find((a) => /^https?:\/\//.test(a)) ?? "").replace(/\/$/, "");
 const local = args.includes("--local");
-const privateNames = (args[args.indexOf("--private") + 1] ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+// Only read the names if --private was given. (indexOf is -1 when it isn't, and args[0] would be the address.)
+const privateAt = args.indexOf("--private");
+const privateNames = (privateAt >= 0 ? (args[privateAt + 1] ?? "") : "").split(",").map((s) => s.trim()).filter(Boolean);
 if (!base) {
   console.error('Give the address to check, for example: npm run check:live -- https://your-app.vercel.app');
   process.exit(2);
@@ -56,7 +58,11 @@ check("The status page says only Connected or Not connected", /Connected|Not con
 // 5. A sign-in sent from another website is refused.
 const bad = JSON.stringify({ email: "launch-check@example.com", password: "not a real password" });
 const evil = await get("/api/auth/sign-in/email", { method: "POST", headers: { "content-type": "application/json", origin: "https://evil.example" }, body: bad });
-check("A sign-in sent from another website is refused", evil.status === 403, String(evil.status));
+// If this computer was already stopped by the guess limit (for example, you ran this check a moment
+// ago), the limit answers first, and these two checks can't be answered. Say so instead of failing.
+const limited = evil.status === 429;
+if (limited) console.log("SKIPPED  A sign-in sent from another website is refused  (the guess limit is holding this computer right now. Wait a minute and run it again)");
+else check("A sign-in sent from another website is refused", evil.status === 403, String(evil.status));
 
 // 6. Wrong passwords: the same plain answer each time, then the limit.
 const codes = [];
@@ -64,7 +70,8 @@ for (let i = 0; i < 8; i++) {
   const r = await get("/api/auth/sign-in/email", { method: "POST", headers: { "content-type": "application/json", origin: base }, body: bad });
   codes.push(r.status);
 }
-check("A wrong password gets a plain 'no', never an error", codes[0] === 401, String(codes[0]));
+if (limited) console.log("SKIPPED  A wrong password gets a plain 'no', never an error  (the guess limit is holding this computer right now)");
+else check("A wrong password gets a plain 'no', never an error", codes[0] === 401, String(codes[0]));
 check("Too many wrong guesses from one address are stopped", codes.includes(429), codes.join(" "));
 
 // 7. The limit can't be dodged by changing a header. This only means something on the real host,
