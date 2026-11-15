@@ -1,0 +1,14 @@
+[
+  { "date": "2026-03-02", "restaurant": "Zigzag Zebra Pizzeria", "person": "Priya", "notes": "" },
+  { "date": "2026-03-09", "restaurant": "Zigzag Zebra Pizzeria", "person": "Dana", "notes": "Patio was closed" },
+  { "date": "2026-03-16", "restaurant": "Mango Moon Tacos", "person": "Marcus", "notes": "Priya says skip Tuesdays" },
+  { "date": "2026-03-23", "restaurant": "The Spotted Spoon", "person": "Priya", "notes": "" },
+  { "date": "2026-03-23", "restaurant": "The Spotted Spoon", "person": "Marcus", "notes": "" },
+  { "date": "2026-03-30", "restaurant": "Mango Moon Tacos", "person": "Dana", "notes": "" },
+  { "date": "2026-04-06", "restaurant": "Zigzag Zebra Pizzeria", "person": "Marcus", "notes": "Went again, same table" },
+  { "date": "2026-09-14", "restaurant": "Pickle Pony Burgers", "person": "Dana", "notes": "Birthday shakes" },
+  { "date": "2026-09-28", "restaurant": "Pickle Pony Burgers", "person": "Marcus", "notes": "" },
+  { "date": "2026-10-05", "restaurant": "Sunny Side Syrup House", "person": "Dana", "notes": "" },
+  { "date": "2026-10-19", "restaurant": "Hayloft Barbecue", "person": "Priya", "notes": "Went early, the patio was empty" },
+  { "date": "2026-11-01", "restaurant": "Zigzag Zebra Pizzeria", "person": "Priya", "notes": "Second visit this season" }
+]

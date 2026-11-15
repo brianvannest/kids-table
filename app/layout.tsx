@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { settings } from "@/lib/settings";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The Kids' Table",
-  description: "A small fry guide",
+  title: settings.appName,
+  description: settings.tagline,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

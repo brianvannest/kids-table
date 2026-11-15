@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { getDb, isDatabaseConfigured } from "@/lib/mongodb";
+import { settings } from "@/lib/settings";
 
-export const metadata: Metadata = { title: "Status · The Kids' Table" };
+export const metadata: Metadata = { title: `Status · ${settings.appName}` };
 
 type DatabaseState =
   | { kind: "not-set" }
@@ -28,6 +30,7 @@ async function checkDatabase(): Promise<DatabaseState> {
 }
 
 async function DatabaseStatus() {
+  await connection();
   const state = await checkDatabase();
   switch (state.kind) {
     case "not-set":

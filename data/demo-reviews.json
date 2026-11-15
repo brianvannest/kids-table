@@ -1,0 +1,14 @@
+[
+  { "restaurant": "Zigzag Zebra Pizzeria", "person": "Priya", "rating": 4, "note": "Loved the tots." },
+  { "restaurant": "Zigzag Zebra Pizzeria", "person": "Dana", "rating": 5, "note": "Patio was closed, but the staff was great." },
+  { "restaurant": "Zigzag Zebra Pizzeria", "person": "Marcus", "rating": 4, "note": "" },
+  { "restaurant": "Mango Moon Tacos", "person": "Priya", "rating": 3, "note": "Skip Tuesdays." },
+  { "restaurant": "Mango Moon Tacos", "person": "Dana", "rating": 5, "note": "" },
+  { "restaurant": "Mango Moon Tacos", "person": "Marcus", "rating": 4, "note": "Kids ate free." },
+  { "restaurant": "The Spotted Spoon", "person": "Priya", "rating": 3, "note": "The play area is a sandbox." },
+  { "restaurant": "The Spotted Spoon", "person": "Marcus", "rating": 3, "note": "" },
+  { "restaurant": "Pickle Pony Burgers", "person": "Dana", "rating": 5, "note": "Best shakes in town." },
+  { "restaurant": "Pickle Pony Burgers", "person": "Marcus", "rating": 4, "note": "" },
+  { "restaurant": "Hayloft Barbecue", "person": "Priya", "rating": 5, "note": "Big patio, lots of room to run." },
+  { "restaurant": "Sunny Side Syrup House", "person": "Dana", "rating": 4, "note": "Syrup flights." }
+]

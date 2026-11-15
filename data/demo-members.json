@@ -1,0 +1,6 @@
+[
+  { "name": "Priya", "email": "priya@example.com", "role": "owner", "status": "member" },
+  { "name": "Dana", "email": "dana@example.com", "role": "member", "status": "member" },
+  { "name": "Marcus", "email": "marcus@example.com", "role": "member", "status": "member" },
+  { "name": "Theo", "email": "theo@example.com", "role": "member", "status": "waiting" }
+]
