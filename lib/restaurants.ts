@@ -124,6 +124,25 @@ export async function insertRestaurant(
   }
 }
 
+// ---- The owner's controls ---------------------------------------------------------------------
+// Only the owner's actions call these. Each one checks the id's shape before it reaches the database.
+
+/** Shows a place on the public page, or takes it off. False if no such place. */
+export async function setRestaurantPublic(id: string, isPublic: boolean): Promise<boolean> {
+  if (!ObjectId.isValid(id) || String(new ObjectId(id)) !== id) return false;
+  const collection = await restaurantsCollection();
+  const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: { public: isPublic } });
+  return result.matchedCount === 1;
+}
+
+/** Records that the owner looked over this place on a day (YYYY-MM-DD). False if no such place. */
+export async function setRestaurantChecked(id: string, day: string): Promise<boolean> {
+  if (!ObjectId.isValid(id) || String(new ObjectId(id)) !== id) return false;
+  const collection = await restaurantsCollection();
+  const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: { lastChecked: new Date(`${day}T00:00:00.000Z`) } });
+  return result.matchedCount === 1;
+}
+
 const keyOf = (d: Pick<RestaurantDraft, "nameKey" | "area">) => `${d.nameKey}|${d.area ?? ""}`;
 
 /** Which of these places are already in the database? Returns their keys. */

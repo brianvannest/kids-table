@@ -7,6 +7,9 @@ import { settings, labelFor } from "@/lib/settings";
 import { requireApprovedMember } from "@/lib/session";
 import { getRestaurant } from "@/lib/restaurants";
 import { Card } from "@/components/ui/Card";
+import { isOwner } from "@/lib/memberRules";
+import { GroupSection } from "./GroupSection";
+import { OwnerControls } from "./OwnerControls";
 import { VisitsSection } from "./VisitsSection";
 import { TagPill } from "@/components/ui/TagPill";
 
@@ -39,6 +42,8 @@ async function PlaceDetails({ params }: { params: Promise<{ id: string }> }) {
         <p>{place.public ? "Anyone can see this place on the public page." : "Only approved members can see this place."}</p>
         {place.lastChecked && <p className="text-sm text-muted">Last checked {place.lastChecked}.</p>}
       </Card>
+      {isOwner(member) && <OwnerControls place={place} />}
+      <GroupSection userId={member.id} restaurantId={place.id} />
       <VisitsSection userId={member.id} restaurantId={place.id} />
       <p>
         <Link href="/places">Back to all {settings.item.plural}</Link>

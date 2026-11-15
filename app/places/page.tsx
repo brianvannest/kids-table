@@ -6,6 +6,9 @@ import { settings, labelFor } from "@/lib/settings";
 import { requireApprovedMember } from "@/lib/session";
 import { buildMemberFilter, hasFilters, parseFilters, type RawParams } from "@/lib/publicFilters";
 import { listMemberRestaurants } from "@/lib/restaurants";
+import { getRatingSummaries, type RatingSummary } from "@/lib/reviews";
+import { isDueForLook } from "@/lib/reviewRules";
+import { isOwner } from "@/lib/memberRules";
 import { buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Notice } from "@/components/ui/Notice";
@@ -19,12 +22,16 @@ export const metadata: Metadata = { title: `All ${settings.item.plural}`, robots
 // before the database is asked for a single place.
 async function PlacesList({ searchParams }: { searchParams: Promise<RawParams> }) {
   await connection();
-  await requireApprovedMember();
+  const member = await requireApprovedMember();
+  const owner = isOwner(member);
+  const today = new Date().toISOString().slice(0, 10);
   const filters = parseFilters(await searchParams, settings);
 
   let places;
+  let ratings = new Map<string, RatingSummary>();
   try {
     places = await listMemberRestaurants(buildMemberFilter(filters));
+    ratings = await getRatingSummaries(places.map((p) => p.id));
   } catch (error) {
     console.error("Couldn't list places for a member:", error instanceof Error ? error.message : error);
     return (
@@ -72,11 +79,24 @@ async function PlacesList({ searchParams }: { searchParams: Promise<RawParams> }
                       <Link href={`/places/${p.id}`}>{p.name}</Link>
                     </h3>
                     {where && <p className="mt-0.5 text-sm text-muted">{where}</p>}
-                    {(p.features.length > 0 || !p.public) && (
+                    {ratings.get(p.id)?.average != null && (
+                      <p className="mt-1 text-sm">
+                        <span className="font-bold tabular-nums">{ratings.get(p.id)?.average} out of 5</span>{" "}
+                        <span className="text-muted">
+                          ({ratings.get(p.id)?.count} {ratings.get(p.id)?.count === 1 ? "review" : "reviews"})
+                        </span>
+                      </p>
+                    )}
+                    {(p.features.length > 0 || !p.public || (owner && isDueForLook(p.lastChecked, today))) && (
                       <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Features">
                         {!p.public && (
                           <li>
                             <TagPill tone="plain">Members only</TagPill>
+                          </li>
+                        )}
+                        {owner && isDueForLook(p.lastChecked, today) && (
+                          <li>
+                            <TagPill tone="sun">Due for a fresh look</TagPill>
                           </li>
                         )}
                         {p.features.map((f) => (
