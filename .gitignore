@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# copies of your data (private: members' emails and visits). Never commit these.
+/exports/
+
 # vercel
 .vercel
 
